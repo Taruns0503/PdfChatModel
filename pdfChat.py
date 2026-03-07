@@ -16,8 +16,28 @@ model = AutoModelForCausalLM.from_pretrained(
 
 print("Model loaded.")
 
+
 def handler(job):
-    prompt = job["input"].get("prompt", "")
+    job_input = job["input"]
+
+    text = job_input.get("text", "")
+    question = job_input.get("question", "")
+
+    prompt = f"""
+You are a helpful assistant.
+
+Answer the question ONLY using the provided text.
+If the answer is not present in the text, say:
+"The answer is not available in the provided text."
+
+Text:
+{text}
+
+Question:
+{question}
+
+Answer:
+"""
 
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
@@ -27,8 +47,9 @@ def handler(job):
         temperature=0.7
     )
 
-    text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    return {"response": text}
+    return {"response": response}
+
 
 runpod.serverless.start({"handler": handler})
