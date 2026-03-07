@@ -1,5 +1,5 @@
-runpod
-torch
-transformers
-accelerate
 sentencepiece
+torch==2.4.0
+transformers==4.40.2
+accelerate
+runpod
