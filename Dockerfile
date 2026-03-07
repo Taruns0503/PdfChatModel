@@ -1,5 +1,4 @@
-FROM runpod/pytorch:2.1.0-py3.10-cuda12.1.1-devel
-
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 WORKDIR /
 
 COPY requirements.txt .
