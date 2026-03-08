@@ -1,4 +1,5 @@
-import runpod
+from fastapi import FastAPI
+from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
@@ -16,12 +17,21 @@ model = AutoModelForCausalLM.from_pretrained(
 
 print("Model loaded.")
 
+app = FastAPI()
 
-def handler(job):
-    job_input = job["input"]
 
-    text = job_input.get("text", "")
-    question = job_input.get("question", "")
+class Query(BaseModel):
+    text: str
+    question: str
+
+
+@app.get("/")
+def root():
+    return {"status": "Model is running"}
+
+
+@app.post("/ask")
+def ask(query: Query):
 
     prompt = f"""
 You are a helpful assistant.
@@ -31,10 +41,10 @@ If the answer is not present in the text, say:
 "The answer is not available in the provided text."
 
 Text:
-{text}
+{query.text}
 
 Question:
-{question}
+{query.question}
 
 Answer:
 """
@@ -50,6 +60,3 @@ Answer:
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     return {"response": response}
-
-
-runpod.serverless.start({"handler": handler})
